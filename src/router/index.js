@@ -8,6 +8,7 @@ import CardPage from '@/views/card/CardPage.vue'
 import MemberPage from '@/views/member/MemberPage.vue';
 import TestPage from '@/views/TestPage.vue';
 import PurchaseMethodPage from '@/views/purchase/PurchaseMethodPage.vue';
+import MemberCardPage from '@/views/member/MemberCardPage.vue';
 
 const routes = [
   {
@@ -54,7 +55,12 @@ const routes = [
     path: '/purchase/method',
     name: 'PurchaseMethodPage',
     component: PurchaseMethodPage,
-  }
+  },
+  {
+    path: '/member/card',
+    name: 'MemberCardPage',
+    component: MemberCardPage,
+  },
 ]
 
 const router = createRouter({
