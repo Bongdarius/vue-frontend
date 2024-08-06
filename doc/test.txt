@@ -1,0 +1,8 @@
+          data.forEach((each, idx) => {
+            data[idx].text = each.pcmNm;
+            data[idx].value = each.pcmSeq;
+          })
+
+          gridRef.value.invoke("resetData", data);
+          gridProps.columns[2].editor.options.listItems = data;
+          gridRef.value.invoke("setColumns", gridProps.columns);

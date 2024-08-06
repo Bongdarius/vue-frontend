@@ -1,0 +1,1 @@
+gridRef.value.invoke("setColumnHeaders", {pcmSeq: "안녕?", pcmNm: "잘가?"});
