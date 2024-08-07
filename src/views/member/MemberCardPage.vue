@@ -24,6 +24,7 @@ import 'tui-grid/dist/tui-grid.css';
 import Grid from '@/Grid.vue';
 import { onMounted, reactive, ref } from 'vue';
 import MemberCardService from '@/service/MemberCardService';
+import CardService from '@/service/CardService';
 
 export default {
   components: {
@@ -31,11 +32,21 @@ export default {
   },
   setup() {
     onMounted(async () => {
+      await cardService.selectListByItems()
+        .then(data => {
+          gridRef.value.columns[1].editor.options.listItems = data;
+          // console.log(gridRef.value.columns[1].editor.options.listItems);
+          gridRef.value.invoke("setColumns", gridRef.value.columns);
+        })  
+
       search();
+      // console.log(gridRef.value.getInstance());
     });
+
     const search = () => {
       memberCardService.selectList()
         .then((data) => {
+          gridProps.data = data;
           gridRef.value.invoke("resetData", data);
         })
     }
@@ -49,34 +60,53 @@ export default {
       const checkedList = gridRef.value.invoke("getCheckedRowKeys");
       gridRef.value.invoke("removeRows", checkedList);
     }
-    const save = () => {
+    const save = async () => {
       const modifiedRows = gridRef.value.invoke("getModifiedRows");
       const createdRows = modifiedRows.createdRows;
       const updatedRows = modifiedRows.updatedRows;
       const deletedRows = modifiedRows.deletedRows;
+
+      // if(createdRows.length > 0) {
+      //   createdRows.forEach(each => {
+      //     each.cardSeq = each.cardSeqStr;
+      //     memberCardService.insertOne(each)
+      //       .catch((e) => { alert(e.message); })
+      //       // .finally(() => { search(); })
+      //   });
+      // }
+      // if(updatedRows.length > 0) {
+      //   updatedRows.forEach(each => {
+      //     each.cardSeq = each.cardSeqStr;
+      //     memberCardService.updateOne(each)
+      //       .catch((e) => { alert(e.message); })
+      //       // .finally(() => { search(); })
+      //   })
+      // }
+      // if(deletedRows.length > 0) {
+      //   deletedRows.forEach(each => {
+      //     memberCardService.deleteOne(each.mcSeq)
+      //       .catch((e) => { alert(e.message); })
+      //       // .finally(() => { search(); })
+      //   })
+      // }
+
       if(createdRows.length > 0) {
-        createdRows.forEach(each => {
-          memberCardService.insertOne(each)
-            .catch((e) => { alert(e.message); })
-            .finally(() => { search(); })
-        });
+        await memberCardService.insertList(createdRows)
+          .catch(e => {alert(e.message);})
       }
       if(updatedRows.length > 0) {
-        updatedRows.forEach(each => {
-          memberCardService.updateOne(each)
-            .catch((e) => { alert(e.message); })
-            .finally(() => { search(); })
-        })
+        await memberCardService.updateList(updatedRows)
+          .catch(e => {alert(e.message);})
       }
       if(deletedRows.length > 0) {
-        deletedRows.forEach(each => {
-          memberCardService.deleteOne(each.cardSeq)
-            .catch((e) => { alert(e.message); })
-            .finally(() => { search(); })
-        })
+        await memberCardService.deleteList(deletedRows)
+          .catch(e => {alert(e.message);})
       }
+
+      search();
     }
     const memberCardService = new MemberCardService();
+    const cardService = new CardService();
     const gridRef = ref(null);
     const listItems = ref([]);
     const gridProps = reactive({
@@ -92,43 +122,27 @@ export default {
         {
           header: '일련번호',
           name: 'mcSeq',
-        },
-        {
-          header: '회원 일련번호',
-          name: 'mbSeq',
-          editor: 'text',
-        },       
-        {
-          header: '닉네임',
-          name: 'mbNick',
-          editor: 'text',
-        },       
-        {
-          header: '아이디',
-          name: 'mbId',
-          editor: 'text',
-        },       
-        {
-          header: '카드 일련번호',
-          name: 'cardSeq',
-          editor: 'text',
-        },       
+        },      
         {
           header: '카드명',
-          name: 'cardNm',
-          editor: 'text',
+          name: 'cardSeqStr',
+          onBeforeChange(ev) {
+            console.log('executes before the value changes : ', ev);
+          },
+          onAfterChange(ev) {
+            console.log('executes after the value has changed : ', ev);
+          },
+          copyOptions: {
+            useListItemText: true,
+          },
+          formatter: 'listItemText',
+          editor: {
+            type: 'select',
+            options: {
+              listItems: []
+            },
+          },
         },
-        // {
-        //   header: 'Type',
-        //   name: 'typeCode',
-        //   formatter: 'listItemText',
-        //   editor: {
-        //     type: 'select',
-        //     options: {
-        //       listItems: []
-        //     }
-        //   }
-        // },
       ],
       data: [],
       myTheme: {
@@ -154,7 +168,7 @@ export default {
       },
     });
     return {
-      gridProps, gridRef, appendRow, save, search, deleteRows, listItems,
+      gridProps, gridRef, appendRow, save, search, deleteRows, listItems, 
     }
   },
 };
