@@ -5,6 +5,10 @@ export default class CardService {
 		return axios.get("/card")
 			.then(res => res.data)
 	}
+	selectListByItems() {
+		return axios.get("/card/byItems")
+			.then(res => res.data)
+	}
 	insertOne(card) {
 		return axios.post("/card", card)
 			.then((res) => {
