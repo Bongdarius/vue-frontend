@@ -98,7 +98,7 @@ export default {
     };
 
     const getInstance = () => {
-      console.log(gridInstance);
+      return gridInstance;
     }
 
     return {
