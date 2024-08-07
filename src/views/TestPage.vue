@@ -1,109 +1,82 @@
 <template>
-  <div class="container">
-    <h1 @click="search">TEST</h1>
-    <div class="flex justify-end gap-2 mb-2 w-full">
-      <Button label="행추가" @click="appendRow" class="flex-grow" />
-      <Button label="삭제" @click="deleteRows" class="flex-grow" />
-      <Button label="저장" @click="save" class="flex-grow" />
-    </div>
-    <grid
-      ref="gridRef"
-      :data="gridProps.data"
-      :columns="gridProps.columns"
-      :options="gridProps.options"
-      :theme="gridProps.myTheme"
-      @check="onCheck"
-      @uncheck="onUnCheck"
-      :rowHeaders="gridProps.rowHeaders"
-      :columnOptions="gridProps.columnOptions"
-    ></grid>
+  <h1 @click="pushVal">TEST</h1>
+  <div>
+    <tui-grid 
+      ref="GridTable"
+      :data="data"
+      :columns="columns"
+      :bodyHeight="400"
+    >
+    </tui-grid>
   </div>
 </template>
 <script>
-import 'tui-grid/dist/tui-grid.css';
-import Grid from '@/Grid.vue';
-import { onMounted, reactive, ref } from 'vue';
-// import MemberService from '@/service/MemberService';
-// import TestService from '@/service/TestService';
-
+import { onMounted, ref } from 'vue';
 export default {
-  components: {
-    grid: Grid,
-  },
   setup() {
-    onMounted(async () => {
-      // search();
-
-      // console.log(gridRef.value.getInstance());
-    });
-
-    const search = () => {
-      // testService.selectList()
-      //   .then((data) => {
-      //     // console.log(data);
-      //     gridRef.value.invoke("resetData", data);
-      //   })
-      const data = [];
-      for(let i = 1; i <= 100000; i++) {
-        data.push({testSeq: i, testNm: `test${i}`});
+    const data = ref([
+      {
+        id: '10012',
+        city: 'Seoul',
+        country: 'South Korea'
+      },
+      {
+        id: '10013',
+        city: 'Tokyo',
+        country: 'Japan'    
+      },
+      {
+        id: '10014',
+        city: 'London',
+        country: 'England'
+      },
+      {
+        id: '10015',
+        city: 'Ljubljana',
+        country: 'Slovenia'
+      },
+      {
+        id: '10016',
+        city: 'Reykjavik',
+        country: 'Iceland'
       }
-      gridRef.value.invoke("resetData", data);
-    }
-    const appendRow = () => {
-      gridRef.value.invoke("appendRows", [{}]);
-    }
-    const deleteRows = () => {
-    }
-    const save = () => {
-    }
-    // const testService = new TestService();
-    const gridRef = ref(null);
-    const gridProps = reactive({
-      rowHeaders: ['checkbox', 'rowNum'],
-      columnOptions: {
-        resizable: true,
-        frozenCount: 1,
+    ]);
+    const columns = ref([
+      {
+        header: 'ID',
+        name: 'id'
       },
-      columns: [
-        {
-          header: 'ID',
-          name: 'testSeq',
-          width: 30
-        },
-        {
-          header: 'NAME',
-          name: 'testNm'
-        }
-      ],
-      data: [],
-      myTheme: {
-        name: 'myTheme',
-        value: {
-          cell: {
-            normal: {
-              background: '#00ff00',
-              border: '#e0e0e0',
-            },
-            header: {
-              background: '#ff0000',
-              border: '#ffff00',
-            },
-            editable: {
-              background: '#fbfbfb',
-            },
-          },
-        },
+      {
+        header: 'CITY',
+        name: 'city',
+        editor: 'text'
       },
-      options: {
-        rowHeaders: ['checkbox'],
-      },
+      {
+        header: 'COUNTRY',
+        name: 'country'
+      }
+    ]);
+    const pushVal = () => {
+      const temp = { id: '999999', city: 'test', country: 'test' };
+      data.value.push(temp);
+      const grid = GridTable.value;
+      grid.invoke("resetData", data.value);
+    };
+    const GridTable = ref();
+    onMounted(async () => {
+      const grid = GridTable.value;
+
+      console.log(grid);
+
+      grid?.applyTheme("default");
+      grid?.setLanguage("ko");
+      // const instance = grid?.gridInstance;
+      // instance.setWidth(500);
+      // grid.invoke("setWidth", 500);
     });
     return {
-      gridProps, gridRef, appendRow, save, search, deleteRows
+      data, columns, GridTable, pushVal,
     }
-  },
-};
+  }
+}
 </script>
-<style>
-@import 'https://uicdn.toast.com/tui-grid/latest/tui-grid.css';
-</style>
