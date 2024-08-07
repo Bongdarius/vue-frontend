@@ -20,11 +20,9 @@ import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 
+import "tui-date-picker/dist/tui-date-picker.css"; // use datepicker
 import 'tui-grid/dist/tui-grid.css';
-import { Grid } from '@toast-ui/vue-grid';
-
-// import Editor from '@toast-ui/editor';
-// import '@toast-ui/editor/dist/toastui-editor.css';
+import TuiGrid from 'vue3-tui-grid';
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;  //전역변수로 설정 컴포넌트에서 this.$axios 호출할 수 있음
@@ -83,13 +81,17 @@ app.use(PrimeVue, {
         }
     }
 });
-app.use(router).mount('#app')
+app.use(router);
+app.use(TuiGrid);
+
 app.component('DataTable', DataTable);
 app.component('Column', Column);
 app.component('ColumnGroup', ColumnGroup);
 app.component('Row', Row);
-app.component('Grid', Grid);
 app.component('Dialog', Dialog);
 app.component('Button', Button);
 app.component('InputText', InputText);
-// app.component('Editor', Editor);
+
+router.isReady().then(() => {
+    app.mount('#app')
+});
