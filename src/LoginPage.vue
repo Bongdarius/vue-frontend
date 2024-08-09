@@ -85,11 +85,12 @@ export default {
               .then((data) => {
                   if(!data) return;
                   store.commit('changeIsLogin', true);
-                  store.commit('changeLoginId', data.mbId);
+                  store.commit('changeUserSeq', data.mbSeq);
+                  store.commit('changeUserId', data.mbId);
+                  store.commit('changeUserNick', data.mbNick);
                   router.push('/');
               }).catch((error) => {
                   store.commit('changeIsLogin', false);
-                  store.commit('changeLoginId', null);
                   alert(`아이디 혹은 비밀번호를 확인해주세요. : ${error.message}`);
               })
         }

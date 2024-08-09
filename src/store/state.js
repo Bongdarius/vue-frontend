@@ -5,7 +5,9 @@ export default createStore({
     return {
       module: {
         isLogin: false,
-        loginId : null
+        userSeq: null,
+        userId: null,
+        userNick: null,
       }
     };
   },
@@ -13,8 +15,14 @@ export default createStore({
     changeIsLogin(state, payload) {
       state.module.isLogin = payload;
     },
-    changeLoginId(state, payload) {
-      state.module.loginId = payload;
+    changeUserSeq(state, payload) {
+      state.module.userSeq = payload;
+    },
+    changeUserId(state, payload) {
+      state.module.userId = payload;
+    },
+    changeUserNick(state, payload) {
+      state.module.userNick = payload;
     }
   }
 });

@@ -43,4 +43,17 @@ export default class MemberService {
 				throw new Error(e.response.data.message);
 			})
 	}
+	isLogin() {
+		return axios.get("/member/isLogin")
+			.then(res => res.data)
+			.catch(e => {
+				throw new Error(e.response.data.message);
+			})
+	}
+	logout() {
+		return axios.get("/member/logout")
+			.catch(e => {
+				throw new Error(e.response.data.message);
+			})
+	}
 }
