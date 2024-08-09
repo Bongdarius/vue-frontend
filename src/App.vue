@@ -14,6 +14,7 @@ import PageFooter from '@/components/PageFooter'
 import { computed, onBeforeMount } from 'vue';
 import store from '@/store/state'; // store 파일 import
 import { useRouter } from 'vue-router';
+import MemberService from '@/service/MemberService';
 
 export default {
   name: 'App',
@@ -23,14 +24,26 @@ export default {
   },
   setup() {
     onBeforeMount(async () => {
-      if(!state.value) {
+      const member = await memberService.isLogin();
+      console.log(member);
+      if(member) {
+        store.commit('changeIsLogin', true);
+        store.commit('changeUserSeq', member.mbSeq);
+        store.commit('changeUserId', member.mbId);
+        store.commit('changeUserNick', member.mbNick);
+        router.push('/');
+      } else {
         router.push('/login');
       }
+
+      // if(!state.value) {
+      //   router.push('/login');
+      // }
     });
 
     const router = useRouter();
     const state = computed(() => store.state.module.isLogin);
-
+    const memberService = new MemberService();
     return {
       state,
       router,

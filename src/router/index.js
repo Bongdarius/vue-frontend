@@ -9,6 +9,7 @@ import MemberPage from '@/views/member/MemberPage.vue';
 import TestPage from '@/views/TestPage.vue';
 import PurchaseMethodPage from '@/views/purchase/PurchaseMethodPage.vue';
 import MemberCardPage from '@/views/member/MemberCardPage.vue';
+import PurchasePage from '@/views/purchase/PurchasePage.vue';
 
 const routes = [
   {
@@ -60,6 +61,11 @@ const routes = [
     path: '/member/card',
     name: 'MemberCardPage',
     component: MemberCardPage,
+  },
+  {
+    path: '/purchase',
+    name: 'PurchasePage',
+    component: PurchasePage,
   },
 ]
 

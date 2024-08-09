@@ -32,7 +32,7 @@ export default {
     draggable: {
       type: Boolean,
       defalt: false,
-    }
+    },
   },
   setup(props, { emit, attrs }) {
     const tuiGrid = ref(null);
