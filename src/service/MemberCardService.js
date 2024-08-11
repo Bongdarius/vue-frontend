@@ -2,7 +2,11 @@ import axios from "axios";
 
 export default class MemberCardService {
 	selectList() {
-		return axios.get("/memberCard/1")
+		return axios.get("/memberCard")
+			.then(res => res.data)
+	}
+	selectListByItems() {
+		return axios.get("/memberCard/byItems")
 			.then(res => res.data)
 	}
 	insertOne(memberCard) {

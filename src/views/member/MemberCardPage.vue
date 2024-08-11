@@ -40,7 +40,6 @@ export default {
         })  
 
       search();
-      // console.log(gridRef.value.getInstance());
     });
 
     const search = () => {

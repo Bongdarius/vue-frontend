@@ -5,6 +5,10 @@ export default class PurchaseMethodService {
 		return axios.get("/purchase/method")
 			.then(res => res.data)
 	}
+	selectListByItems() {
+		return axios.get("/purchase/method/byItems")
+			.then(res => res.data)
+	}
 	insertOne(purchaseMethod) {
 		return axios.post("/purchase/method", purchaseMethod)
 			.then((res) => {

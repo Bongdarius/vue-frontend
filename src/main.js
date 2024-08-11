@@ -19,10 +19,15 @@ import Row from 'primevue/row';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
+import AutoComplete from 'primevue/autocomplete';
+import SelectButton from 'primevue/selectbutton';
+import Select from 'primevue/select';
+import InputNumber from 'primevue/inputnumber';
 
 import "tui-date-picker/dist/tui-date-picker.css"; // use datepicker
 import 'tui-grid/dist/tui-grid.css';
 import TuiGrid from 'vue3-tui-grid';
+import DatePicker from 'primevue/datepicker';
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;  //전역변수로 설정 컴포넌트에서 this.$axios 호출할 수 있음
@@ -91,6 +96,11 @@ app.component('Row', Row);
 app.component('Dialog', Dialog);
 app.component('Button', Button);
 app.component('InputText', InputText);
+app.component('AutoComplete', AutoComplete);
+app.component('SelectButton', SelectButton);
+app.component('Select', Select);
+app.component('InputNumber', InputNumber);
+app.component('DatePicker', DatePicker);
 
 router.isReady().then(() => {
     app.mount('#app')

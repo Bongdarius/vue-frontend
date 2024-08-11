@@ -36,7 +36,7 @@ export default {
   },
   setup(props, { emit, attrs }) {
     const tuiGrid = ref(null);
-    let gridInstance = null;
+    let gridInstance_ = ref;
 
     onMounted(() => {
       const options = {
@@ -50,15 +50,15 @@ export default {
         draggable: props.draggable,
       };
 
-      gridInstance = new Grid(options);
+      gridInstance_ = new Grid(options);
       addEventListeners();
     });
 
     onBeforeUnmount(() => {
-      if (gridInstance) {
+      if (gridInstance_) {
         removeEventListeners();
-        gridInstance.destroy();
-        gridInstance = null;
+        gridInstance_.destroy();
+        gridInstance_ = null;
       }
     });
 
@@ -72,7 +72,7 @@ export default {
         // 필요한 이벤트를 여기에 추가하세요
       ];
       events.forEach((eventName) => {
-        gridInstance.on(eventName, (...args) => emit(eventName, ...args));
+        gridInstance_.on(eventName, (...args) => emit(eventName, ...args));
       });
     };
 
@@ -85,7 +85,7 @@ export default {
         // 필요한 이벤트를 여기에 추가하세요
       ];
       events.forEach((eventName) => {
-        gridInstance.off(eventName);
+        gridInstance_.off(eventName);
       });
     };
 
@@ -94,18 +94,17 @@ export default {
     };
 
     const invoke = (methodName, ...args) => {
-      return typeof gridInstance[methodName] === 'function' ? gridInstance[methodName](...args) : null;
+      return typeof gridInstance_[methodName] === 'function' ? gridInstance_[methodName](...args) : null;
     };
 
-    const getInstance = () => {
-      return gridInstance;
-    }
+    const gridInstance = () => gridInstance_;
 
     return {
       tuiGrid,
       getRootElement,
       invoke,
-      getInstance,
+      gridInstance_,
+      gridInstance,
     };
   },
 };

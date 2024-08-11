@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <h1 @click="search">등록 카드 관리</h1>
+    <h1 @click="search">결제 내역 관리</h1>
     <div class="flex justify-end gap-2 mb-2 w-full">
-      <Button label="행추가" @click="appendRow" class="flex-grow" />
+      <Button label="행추가" @click="visible = true" class="flex-grow" />
       <Button label="삭제" @click="deleteRows" class="flex-grow" />
       <Button label="저장" @click="save" class="flex-grow" />
     </div>
@@ -18,13 +18,38 @@
       :columnOptions="gridProps.columnOptions"
     ></grid>
   </div>
+  <Dialog v-model:visible="visible" modal header="결제 내역 추가" :style="{ width: '20rem' }">
+        <span class="text-surface-500 dark:text-surface-400 block mb-4">결제 정보를 입력하세요.</span>
+        <label for="pcAmt" class="font-semibold w-100">결제수단</label>
+        <Select v-model="appendRowData.pcmSeq" :options="purchaseMethodDatas" optionLabel="text" optionValue="value" placeholder="결제방법을 선택하세요." class="w-full md:w-56 mb-4" />
+        <label v-if="appendRowData.pcmSeq == 1" for="pcAmt" class="font-semibold w-100">결제카드</label>
+        <Select v-show="appendRowData.pcmSeq == 1" v-model="appendRowData.mcSeq" :options="memberCardDatas" optionLabel="text" optionValue="value" placeholder="카드를 선택하세요." class="w-full md:w-56 mb-4" />
+        <label for="pcAmt" class="font-semibold w-100">금액</label>
+        <InputNumber id="pcAmt" v-model="appendRowData.pcAmt" inputId="pcmAnt" :min="0" fluid />
+        <label for="pcAmt" class="font-semibold w-100">결제일시</label>
+        <div class="flex justify-end gap-2">
+          <DatePicker v-model="appendRowData.pcDate" dateFormat="yy-mm-dd" showButtonBar :style="{width: '70%'}"/>
+          <DatePicker v-model="appendRowData.pcTime" timeOnly fluid :style="{width: '30%'}"/>
+        </div>
+        <label for="pcAmt" class="font-semibold w-100">비고</label>
+        <InputText id="pcRemark" v-model.trim="appendRowData.pcRemark" autocomplete="off"/>
+
+        <div class="flex justify-end gap-2">
+            <Button type="button" label="취소" severity="secondary" @click="visible = false"></Button>
+            <Button type="button" label="저장" @click="save"></Button>
+        </div>
+    </Dialog>
 </template>
 <script>
 import 'tui-grid/dist/tui-grid.css';
 import Grid from '@/Grid.vue';
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
+import PurchaseService from '@/service/PurchaseService';
 import MemberCardService from '@/service/MemberCardService';
-import CardService from '@/service/CardService';
+import PurchaseMethodService from '@/service/PurchaseMethodService';
+import store from '@/store/state'; // store 파일 import
+// import { CustomTextEditor } from '@/views/CustomTextEditor';
+// import { CustomSelectEditor } from '@/views/CustomSelectEditor';
 
 export default {
   components: {
@@ -32,22 +57,24 @@ export default {
   },
   setup() {
     onMounted(async () => {
-      await cardService.selectListByItems()
+      await memberCardService.selectListByItems()
         .then(data => {
-          gridRef.value.columns[1].editor.options.listItems = data;
-          // console.log(gridRef.value.columns[1].editor.options.listItems);
-          gridRef.value.invoke("setColumns", gridRef.value.columns);
-        })  
+          memberCardDatas.value = data;
+        })
+      await purchaseMethodService.selectListByItems()
+        .then(data => {
+          purchaseMethodDatas.value = data;
+        })
 
       search();
-      // console.log(gridRef.value.getInstance());
     });
-
+    const userSeq = computed(() => store.state.module.userSeq);
     const search = () => {
-      memberCardService.selectList()
+      purchaseService.selectList()
         .then((data) => {
-          gridProps.data = data;
-          gridRef.value.invoke("resetData", data);
+          const grid = gridRef?.value?.gridInstance();
+
+          grid?.resetData(data);
         })
     }
     const appendRow = () => {
@@ -62,7 +89,7 @@ export default {
       const modifiedRows = gridRef.value.invoke("getModifiedRows");
       const deletedRows = modifiedRows.deletedRows;
       if(deletedRows.length > 0) {
-        memberCardService.deleteList(deletedRows)
+        purchaseService.deleteList(deletedRows)
           .then(() => {
             search();
           }) 
@@ -73,40 +100,57 @@ export default {
     }
 
     const save = async () => {
-      //getModifiedRows : 그리드에서 수정된 행을 배열로 가져오는 api 3가지 상태가 존재한다. (createdRows, updatedRows, deletedRows) 
-      const modifiedRows = gridRef.value.invoke("getModifiedRows");
-      const createdRows = modifiedRows.createdRows;
-      const updatedRows = modifiedRows.updatedRows;
-      
-      //신규행 + 수정행
-      const saveRows = createdRows.concat(updatedRows);
-      
-      //신규 + 수정 행이 1건 미만일 경우 리턴
-      if(saveRows.length < 1) return;
+      /**
+       * @type {Date}
+       */
+      const pcDate = appendRowData.value.pcDate
+      /**
+       * @type {Date}
+       */
+      const pcTime = appendRowData.value.pcTime;
 
-      //신규 + 수정 행의 그리드상 인덱스 번호를 반복문을 통해 saveRowKeys에 저장
-      const saveRowKeys = [];
-      saveRows.forEach(each => {
-          saveRowKeys.push(each.rowKey);
-      })
+      if(pcDate != null && pcTime != null) {
+        const year = String(pcDate.getFullYear()).padStart(4, '0');
+        const month = String(pcDate.getMonth()).padStart(2, '0');
+        const date = String(pcDate.getDate()).padStart(2, '0');
+        const hours = String(pcTime.getHours()).padStart(2, '0');
+        const minutes = String(pcTime.getMinutes()).padStart(2, '0');
+        const seconds = String(pcTime.getSeconds()).padStart(2, '0');
+        const milliseconds = String(pcTime.getMilliseconds()).padStart(3, '0');
 
-      //validate : 벨리데이션 체크를 하는 api 문제가 있는 행의 개수만큼 배열로 반환한다.
-      const errorRows = gridRef.value.invoke("validate", saveRowKeys);
-      if(errorRows.length > 0) {
-          alert("검증 오류");
-          return;
+        appendRowData.value.pcDatetime = `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
       }
 
-      memberCardService.saveList(saveRows)
-          .then(() => {
-              search();
-          })
-          .catch(e => {
-              alert(e.message);
-          })
+      purchaseService.saveList([appendRowData.value])
+        .then(() => {
+          Object.keys(appendRowData.value).forEach(key => {
+            console.log(key);
+            if(key != 'mbSeq') appendRowData.value[key] = null;
+          });
+            search();
+        })
+        .catch(e => {
+            alert(e.message);
+        })
     }
+    const visible = ref(false);
+    const appendRowData = ref({
+      pcSeq: 1,
+      mbSeq: userSeq,
+      pcmSeq: null,
+      pccSeq: null,
+      mcSeq: null,
+      pcAmt: null,
+      pcDatetime: null,
+      pcDate: null,
+      pcTime: null,
+      pcRemark: null,
+    });
+    const purchaseService = new PurchaseService();
     const memberCardService = new MemberCardService();
-    const cardService = new CardService();
+    const purchaseMethodService = new PurchaseMethodService();
+    const memberCardDatas = ref([]);
+    const purchaseMethodDatas = ref([]);
     const gridRef = ref(null);
     const listItems = ref([]);
     const gridProps = reactive({
@@ -118,37 +162,58 @@ export default {
       columns: [
         {
           header: '일련번호',
-          name: 'mcSeq',
+          name: 'pcSeq',
         },      
+        // {
+        //   header: '회원 일련번호',
+        //   name: 'mbSeq',
+        // },
+        // {
+        //   header: '결제 방법 일련번호',
+        //   name: 'pcmSeq',
+        // },               
+        {
+          header: '결제 방법',
+          name: 'pcmNm',
+        },               
+        // {
+        //   header: '카드결제 일련번호',
+        //   name: 'pccSeq',
+        // },               
+        // {
+        //   header: '회원카드 일련번호',
+        //   name: 'mcSeq',
+        // },              
         {
           header: '카드명',
-          name: 'cardSeqStr',
-          onBeforeChange(ev) {
-            console.log('executes before the value changes : ', ev);
-          },
-          onAfterChange(ev) {
-            console.log('executes after the value has changed : ', ev);
-          },
-          formatter: 'listItemText',
-          editor: {
-            type: 'select',
-            options: {
-              listItems: []
-            },
-          },
-          validation: {
-              required: true
-          },
-        },
-        {
-          header: '카드 별명',
           name: 'mcNick',
+        }, 
+        {
+          header: '결제 금액',
+          name: 'pcAmt',
           editor: 'text',
           validation: {
-              required: true
-              , dataType: "string"
-          },
-        },    
+            required: true,
+            dataType: 'number',
+            min: 0,
+          }
+        },          
+        {
+          header: '결제일시',
+          name: 'pcDatetime',
+          editor: {
+            type: "datePicker",
+            options: {
+              format: 'yyyy-MM-dd HH:mm A',
+              timepicker: true
+            }
+          }
+        },         
+        {
+          header: '비고',
+          name: 'pcRemark',
+          editor: 'text'
+        },
       ],
       data: [],
       myTheme: "default",
@@ -157,7 +222,12 @@ export default {
       },
     });
     return {
-      gridProps, gridRef, appendRow, save, search, deleteRows, listItems, 
+      gridProps, gridRef, appendRow, save, search, deleteRows, listItems,
+      visible,
+      appendRowData,
+      memberCardDatas,
+      purchaseMethodDatas,
+      userSeq,
     }
   },
 };

@@ -32,8 +32,6 @@ export default {
   setup() {
     onMounted(async () => {
       search();
-
-      console.log(gridRef.value.getInstance());
     });
     const search = () => {
       memberService.selectList()
