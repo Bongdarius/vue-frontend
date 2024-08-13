@@ -33,6 +33,14 @@ export default {
       type: Boolean,
       defalt: false,
     },
+    scrollX: {
+      type: Boolean,
+      defalt: true,
+    },
+    scrollY: {
+      type: Boolean,
+      defalt: true,
+    },
   },
   setup(props, { emit, attrs }) {
     const tuiGrid = ref(null);
@@ -48,6 +56,8 @@ export default {
         bodyHeight: props.bodyHeight,
         width: props.width,
         draggable: props.draggable,
+        scrollX: props.scrollX,
+        scrollY: props.scrollY,
       };
 
       gridInstance_ = new Grid(options);
@@ -69,6 +79,8 @@ export default {
         'dblclick', 
         'mouseover', 
         'mouseout', 
+        'check',
+        'uncheck',
         // 필요한 이벤트를 여기에 추가하세요
       ];
       events.forEach((eventName) => {

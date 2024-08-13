@@ -6,6 +6,9 @@
       :data="data"
       :columns="columns"
       :bodyHeight="400"
+      :options="{rowHeaders: ['rowNum', 'checkbox']}"
+      @check="onCheck"
+      @uncheck="onUnCheck"
     >
     </tui-grid>
   </div>
@@ -13,6 +16,14 @@
 <script>
 import { onMounted, ref } from 'vue';
 export default {
+  methods: {
+    onCheck(ev) {
+      console.log(ev);
+    },
+    onUnCheck(ev) {
+      console.log(ev);
+    },
+  },
   setup() {
     const data = ref([
       {
@@ -70,9 +81,6 @@ export default {
 
       grid?.applyTheme("default");
       grid?.setLanguage("ko");
-      // const instance = grid?.gridInstance;
-      // instance.setWidth(500);
-      // grid.invoke("setWidth", 500);
     });
     return {
       data, columns, GridTable, pushVal,

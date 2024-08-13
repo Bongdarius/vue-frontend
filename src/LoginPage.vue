@@ -11,6 +11,8 @@
           <a href="#" @click="resetPwVisible = true">비밀번호 초기화</a>
       </div>
   </div>
+  <div>
+  </div>
   <Dialog v-model:visible="visible" modal header="회원가입" :style="{ width: '20rem' }">
       <span class="text-surface-500 dark:text-surface-400 block mb-4">사용자 정보를 입력하시오.</span>
       <div class="flex items-center gap-4">

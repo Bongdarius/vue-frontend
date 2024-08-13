@@ -15,9 +15,9 @@
       </div>
       <!-- 사용자 기능 -->
       <div>
-        <router-link to="/member/card">등록 카드</router-link> |
-        <router-link to="/purchase">결제 목록</router-link> |
-        <router-link to="/purchase/card">카드 결제</router-link>
+        <router-link to="/member/card">카드 등록</router-link> |
+        <router-link to="/purchase">결제 내역</router-link> |
+        <router-link to="/purchase/card">카드 결제 내역</router-link>
       </div>
     </div>
   </header>
@@ -30,7 +30,6 @@ import MemberService from '@/service/MemberService';
 import { useRouter } from 'vue-router';
 export default {
   setup() {
-    // console.log(computed(() => store.state.module.loginId).toUpperCase);
     const userId = computed(() => store.state.module.userId);
     const memberService = new MemberService();
     const router = useRouter();
