@@ -41,6 +41,10 @@ export default {
       type: Boolean,
       defalt: true,
     },
+    summary: {
+      type: Object,
+      default: () => ({}),
+    }, 
   },
   setup(props, { emit, attrs }) {
     const tuiGrid = ref(null);
@@ -58,6 +62,7 @@ export default {
         draggable: props.draggable,
         scrollX: props.scrollX,
         scrollY: props.scrollY,
+        summary: props.summary,
       };
 
       gridInstance_ = new Grid(options);

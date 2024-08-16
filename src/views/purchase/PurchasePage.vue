@@ -20,6 +20,7 @@
       :columnOptions="gridProps.columnOptions"
       :scrollX="true"
       :scrollY="true"
+      :summary="gridProps.summary"
     ></grid>
   </div>
   <Dialog v-model:visible="visible" modal header="결제 내역 저장" :style="{ width: '20rem' }">
@@ -80,8 +81,6 @@ export default {
           purchaseMethodDatas.value = data;
         })
 
-      search();
-
       // const grid = gridRef.value.gridInstance();
       // grid.on('check', onCheck);
     });
@@ -127,10 +126,7 @@ export default {
       /**
        * @type {Number}
        */
-      
       const rowKey = grid.getFocusedCell().rowKey;
-
-      
       /**
        * @type {Object[]}
        */
@@ -168,9 +164,9 @@ export default {
         const hours = String(pcTime.getHours()).padStart(2, '0');
         const minutes = String(pcTime.getMinutes()).padStart(2, '0');
         const seconds = String(pcTime.getSeconds()).padStart(2, '0');
-        const milliseconds = String(pcTime.getMilliseconds()).padStart(3, '0');
+        // const milliseconds = String(pcTime.getMilliseconds()).padStart(3, '0');
 
-        appendRowData.value.pcDatetime = `${year}-${month}-${date}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+        appendRowData.value.pcDatetime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
       }
 
       purchaseService.saveList([appendRowData.value])
@@ -245,7 +241,7 @@ export default {
         {
           header: '결제 금액',
           name: 'pcAmt',
-          width: 70,
+          width: 120,
         },          
         {
           header: '결제일시',
@@ -258,6 +254,18 @@ export default {
           minWidth: 300,
         },
       ],
+      summary: {
+        height: 50,
+        position: 'bottom', // or 'top'
+        columnContent: {
+          pcAmt: {
+            template: function(valueMap) {
+              const valueMap_ = valueMap;
+              return `총 금액: ${valueMap_.sum}`;
+            }
+          },
+        }
+      },
       data: [],
       myTheme: "default",
       options: {
