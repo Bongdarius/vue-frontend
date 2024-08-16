@@ -80,9 +80,7 @@ export default {
         .then(data => {
           purchaseMethodDatas.value = data;
         })
-
-      // const grid = gridRef.value.gridInstance();
-      // grid.on('check', onCheck);
+      search();
     });
     const userSeq = computed(() => store.state.module.userSeq);
     const search = () => {
