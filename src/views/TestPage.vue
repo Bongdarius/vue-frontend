@@ -30,7 +30,21 @@ export default {
 
       // console.log(grid);
 
-      grid = GridUtils.createGrid();
+      grid = GridUtils.createGrid({
+        el: "String",
+        data: [],
+        columns: [
+          {
+            header: 'ID',
+            name: 'id'
+          },
+          {
+            header: '이름',
+            name: 'name'
+          },
+        ],
+        bodyHeight: 500,
+      });
     })
 
     /**
