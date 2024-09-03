@@ -8,10 +8,6 @@ import Grid from 'tui-grid/dist/tui-grid';
 export default {
   setup() {
     onMounted(() => {
-      const gridEl = document.getElementById("grid");
-      gridEl.innerText = "안녕하세요?";
-
-      // eslint-disable-next-line no-undef
       const grid = new Grid({
         el: document.getElementById('grid'),
         data: [],
