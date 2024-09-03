@@ -1,45 +1,54 @@
 <template>
   <h1>TEST</h1>
+  <div :style="{textAlign: 'right'}">
+    <button :style="{width: '100px', margin: '5px'}" @click="resetData">버튼</button>
+  </div>
   <div id="grid"></div>
 </template>
 <script>
 import { onMounted } from 'vue'
-import Grid from 'tui-grid/dist/tui-grid';
+// import Grid from 'tui-grid';
+import GridUtils from '@/utilities/GridUtils'
 export default {
   setup() {
     onMounted(() => {
-      const grid = new Grid({
-        el: document.getElementById('grid'),
-        data: [],
-        scrollX: false,
-        scrollY: false,
-        columns: [
-          {
-            header: 'Name',
-            name: 'name'
-          },
-          {
-            header: 'Artist',
-            name: 'artist'
-          },
-          {
-            header: 'Type',
-            name: 'type'
-          },
-          {
-            header: 'Release',
-            name: 'release'
-          },
-          {
-            header: 'Genre',
-            name: 'genre'
-          }
-        ]
-      });
+      // grid = new Grid({
+      //   el: document.getElementById('grid'),
+      //   data: [],
+      //   columns: [
+      //     {
+      //       header: 'ID',
+      //       name: 'id'
+      //     },
+      //     {
+      //       header: '이름',
+      //       name: 'name'
+      //     },
+      //   ],
+      //   bodyHeight: 500,
+      // });
 
-      console.log(grid);
+      // console.log(grid);
+
+      grid = GridUtils.createGrid();
     })
+
+    /**
+     * @type {Grid}
+     */
+    let grid = null;
+
+    const resetData = () => {
+      const dataList = [];
+      for(let i = 0; i < 100; i++) {
+        dataList.push({id: i, name: 'name' + i})
+      }
+      grid.resetData(dataList);
+    }
+
     return {
+      grid,
+      resetData,
     }
   }
 }
