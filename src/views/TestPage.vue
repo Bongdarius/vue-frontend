@@ -31,8 +31,6 @@ export default {
       // console.log(grid);
 
       grid = GridUtils.createGrid({
-        el: "String",
-        data: [],
         columns: [
           {
             header: 'ID',
