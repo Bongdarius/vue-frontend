@@ -3,45 +3,34 @@
   <div :style="{textAlign: 'right'}">
     <button :style="{width: '100px', margin: '5px'}" @click="resetData">버튼</button>
   </div>
-  <div id="grid"></div>
+  <div id="grid" :style="{margin: '10px', border: '1px solid gray',}"></div>
 </template>
 <script>
 import { onMounted } from 'vue'
-// import Grid from 'tui-grid';
+// eslint-disable-next-line no-unused-vars
+import Grid from 'tui-grid'
 import GridUtils from '@/utilities/GridUtils'
 export default {
   setup() {
     onMounted(() => {
-      // grid = new Grid({
-      //   el: document.getElementById('grid'),
-      //   data: [],
-      //   columns: [
-      //     {
-      //       header: 'ID',
-      //       name: 'id'
-      //     },
-      //     {
-      //       header: '이름',
-      //       name: 'name'
-      //     },
-      //   ],
-      //   bodyHeight: 500,
-      // });
-
-      // console.log(grid);
-
       grid = GridUtils.createGrid({
+        el: document.getElementById("grid"),
         columns: [
           {
             header: 'ID',
-            name: 'id'
+            name: 'id',
+            width: 60
           },
           {
             header: '이름',
-            name: 'name'
+            name: 'name',
+            editor: {
+              type: 'text',
+            }
           },
-        ],
-        bodyHeight: 500,
+        ],      
+        myTheme: "default",
+        rowHeaders: [{type: 'rowNum'}, {type: 'checkbox'}],
       });
     })
 
