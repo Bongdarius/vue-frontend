@@ -2,13 +2,9 @@
   <h1>TEST</h1>
   <div :style="{textAlign: 'right'}">
     <button :style="{width: '120px', margin: '5px'}" @click="resetData">데이터 추가</button>
-    <button :style="{width: '100px', margin: '5px'}" @click="dummy1">컬럼 추가</button>
+    <button :style="{width: '100px', margin: '5px'}" @click="appendColumns">컬럼 추가</button>
   </div>
-  <div id="grid" 
-    :style="{margin: '10px', border: '1px solid gray',}"
-    @check="onCheck"
-    >
-  </div>
+  <div id="grid" ></div>
 </template>
 <script>
 import { onMounted } from 'vue'
@@ -33,18 +29,8 @@ export default {
               type: 'text',
             },
           },
-        ],      
-        myTheme: "default",
-        rowHeaders: [{type: 'rowNum'}, {type: 'checkbox'}],
+        ],
       });
-      grid.on('check', ev => {
-        console.log(ev);
-      });
-      grid.on('uncheck', ev => {
-        console.log(ev);
-      });
-
-      console.log(grid);
     })
 
     /**
@@ -55,20 +41,25 @@ export default {
     const resetData = () => {
       const dataList = [];
       for(let i = 0; i < 100; i++) {
-        dataList.push({id: i, name: 'name' + i})
+        dataList.push({id: i, name: 'name' + i, sex: 'male'});
       }
       grid.resetData(dataList);
     }
 
-    const dummy1 = () => {
-      const a = grid.store.data.rawData;
-      console.log(a);
+    const appendColumns = () => {
+      const a = [{
+        header: '성별',
+        name: 'sex',
+        editor: 'text',
+      }];
+
+      GridUtils.appendColumns(grid, a);
     }
 
     return {
       grid,
       resetData,
-      dummy1,
+      appendColumns,
     }
   }
 }
