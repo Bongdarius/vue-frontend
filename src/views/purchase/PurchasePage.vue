@@ -16,11 +16,14 @@
         <label v-if="appendRowData.pcmSeq == 1" for="pcAmt" class="font-semibold w-100">결제카드</label>
         <Select v-show="appendRowData.pcmSeq == 1" v-model="appendRowData.mcSeq" :options="memberCardDatas" optionLabel="text" optionValue="value" placeholder="카드를 선택하세요." class="w-full md:w-56 mb-4" />
         <label for="pcAmt" class="font-semibold w-100">금액</label>
-        <InputNumber id="pcAmt" v-model="appendRowData.pcAmt" inputId="pcmAnt" :min="0" fluid />
+        <InputNumber id="pcAmt" v-model="appendRowData.pcAmt" inputId="pcmAnt" :min="0" fluid class="mb-2"/>
         <label for="pcAmt" class="font-semibold w-100">결제일시</label>
-        <div class="flex justify-end gap-2">
-          <DatePicker v-model="appendRowData.pcDate" dateFormat="yy-mm-dd" showButtonBar :style="{width: '70%'}"/>
-          <DatePicker v-model="appendRowData.pcTime" timeOnly fluid :style="{width: '30%'}"/>
+        <div class="justify-end gap-2">
+          <DatePicker v-model="appendRowData.pcDate" dateFormat="yy-mm-dd" showButtonBar class="w-full md:w-56 mb-1"/>
+          <div class="flex w-full mb-4">
+            <Select v-model="appendRowData.pcHour" :options="hours()" optionLabel="text" optionValue="value" :style="{width: '48%', marginRight: '2%'}"/>
+            <Select v-model="appendRowData.pcMinute" :options="minutes()" optionLabel="text" optionValue="value" :style="{width: '48%'}"/>
+          </div>
         </div>
         <label for="pcAmt" class="font-semibold w-100">비고</label>
         <InputText id="pcRemark" v-model.trim="appendRowData.pcRemark" autocomplete="off"/>
@@ -32,7 +35,6 @@
     </Dialog>
 </template>
 <script>
-import 'tui-grid/dist/tui-grid.css';
 // eslint-disable-next-line no-unused-vars
 import Grid from 'tui-grid';
 import { computed, onMounted, ref } from 'vue';
@@ -124,6 +126,22 @@ export default {
      */
     let grid = null;
 
+    const hours = () => {
+      const hours = [];
+      for(let i = 1; i <= 24; i++) {
+        hours.push({text: String(i), value: String(i)})
+      }
+      return hours;
+    }
+
+    const minutes = () => {
+      const minutes = [];
+      for(let i = 1; i <= 60; i++) {
+        minutes.push({text: String(i), value: String(i)})
+      }
+      return minutes;
+    }
+
     const userSeq = computed(() => store.state.module.userSeq);
     const search = () => {
       purchaseService.selectList()
@@ -156,6 +174,11 @@ export default {
       Object.keys(appendRowData.value).forEach(key => {
             if(key != 'mbSeq') appendRowData.value[key] = null;
       });
+      const date = new Date();
+      appendRowData.value.pcDate = date;
+      appendRowData.value.pcHour = String(date.getHours());
+      appendRowData.value.pcMinute = String(date.getMinutes());
+
       visible.value = true;
     }
 
@@ -171,11 +194,20 @@ export default {
 
       try {
         Object.keys(appendRowData.value).forEach(each => {
-          if(each != 'mbSeq' & each != 'pcDate' & each != 'pcTime') {
+          if(each != 'mbSeq' & each != 'pcDate' & each != 'pcHour' & each != 'pcMinute') {
             appendRowData.value[each] = String(selectedRow[each]);
-          } else if(each == 'pcDate' || each == 'pcTime') {
+          } 
+          else if(each == 'pcDate') {
             const dateTime = new Date(selectedRow['pcDatetime']);
             appendRowData.value[each] = dateTime;
+          } 
+          else if(each == 'pcHour') {
+            const dateTime = new Date(selectedRow['pcDatetime']);
+            appendRowData.value[each] = String(dateTime.getHours());
+          } 
+          else if(each == 'pcMinute') {
+            const dateTime = new Date(selectedRow['pcDatetime']);
+            appendRowData.value[each] = String(dateTime.getMinutes());
           }
         });
         visible.value = true;
@@ -190,19 +222,22 @@ export default {
        */
       const pcDate = appendRowData.value.pcDate
       /**
-       * @type {Date}
+       * @type {Number}
        */
-      const pcTime = appendRowData.value.pcTime;
-
-      if(pcDate != null && pcTime != null) {
+      const pcHour = appendRowData.value.pcHour;
+      /**
+       * @type {Number}
+       */
+      const pcMinute = appendRowData.value.pcMinute;
+      
+      if(pcDate != null && pcHour != null && pcMinute != null) {
         const year = String(pcDate.getFullYear()).padStart(4, '0');
         const month = String(pcDate.getMonth()+1).padStart(2, '0');
         const date = String(pcDate.getDate()).padStart(2, '0');
-        const hours = String(pcTime.getHours()).padStart(2, '0');
-        const minutes = String(pcTime.getMinutes()).padStart(2, '0');
-        const seconds = String(pcTime.getSeconds()).padStart(2, '0');
+        const hour = String(pcHour).padStart(2, '0');
+        const minute = String(pcMinute).padStart(2, '0');
 
-        appendRowData.value.pcDatetime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+        appendRowData.value.pcDatetime = `${year}-${month}-${date} ${hour}:${minute}:00`;
       }
 
       purchaseService.saveList([appendRowData.value])
@@ -226,7 +261,8 @@ export default {
       pcAmt: null,
       pcDatetime: null,
       pcDate: null,
-      pcTime: null,
+      pcHour: null,
+      pcMinute: null,
       pcRemark: null,
     });
     const purchaseService = new PurchaseService();
@@ -245,6 +281,8 @@ export default {
       userSeq,
       modifiyRow,
       newRow,
+      hours,
+      minutes,
     }
   },
 };
