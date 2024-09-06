@@ -4,7 +4,7 @@ export default class GridUtils {
 
     /**
      * @param {import('tui-grid/types/options').OptGrid} option
-     * @returns {Grid|undefined}
+     * @returns {Promise<Grid>}
      */
     static createGrid = (option) => {
         if(!(option.el instanceof HTMLElement)) {
@@ -39,7 +39,7 @@ export default class GridUtils {
             option.columns.forEach(each => {
                 if(!(each.align instanceof String)) {
                     each.align = 'center';
-                    each.resizable = true;
+                    // each.resizable = true;
                 }
             })
         } else {
@@ -47,6 +47,13 @@ export default class GridUtils {
             return;
         }
         
+        if(!(option.columnOptions instanceof Object)) {
+            option.columnOptions = {
+                frozenCount: 1,
+                resizable: true,
+            }
+        }
+
         if(!(option.bodyHeight instanceof String || option.bodyHeight instanceof Number)) option.bodyHeight = 400;
 
         if(!(option.rowHeaders instanceof Array)) {
@@ -54,7 +61,10 @@ export default class GridUtils {
         }
 
         const grid = new Grid(option);
-        return grid;
+
+        return new Promise(resolve => {
+            resolve(grid);
+        })
     }
 
     /**
@@ -80,10 +90,6 @@ export default class GridUtils {
                         alert("[컬럼] 객체가 아닙니다.");
                         return;
                     }
-
-                    if(!(each.align instanceof String)) {
-                        each.align = 'center';
-                    }
                 })
             }
         }
@@ -91,8 +97,11 @@ export default class GridUtils {
         const allColumns = grid.getColumns();
 
         for(let i = 0; i < allColumns.length; i++) {
+            if('baseWidth' in allColumns[i])  {
+                allColumns[i]['width'] = allColumns[i]['baseWidth'];
+            }
+
             const isExist = columns.some(column => column.name === allColumns[i].name);
-            console.log(isExist);
             if(isExist) {
                 alert("[컬럼] 이미 존재하는 컬럼입니다.");
                 return;
@@ -106,5 +115,23 @@ export default class GridUtils {
         } catch(e) {
             alert(e.message);
         }
+    }
+
+    /**
+     *  @param {Grid} grid
+     *  @param {String} name
+     *  @param {Object[]} listItems
+     */
+    static addListItems = (grid, name, listItems) => {
+        if(!((grid instanceof Grid) && (['string'].includes(typeof name)) && (listItems instanceof Array))) {
+            alert("[콤보박스] 인자를 다시 확인해주세요.");
+            return;
+        }
+
+        /**
+         * @type {import('tui-grid').ColumnInfo[]}
+         */
+        const allColumns = grid.store.column.allColumns;
+        allColumns.find(column => column.name === name).editor.options.listItems = listItems;
     }
 }
