@@ -3,6 +3,7 @@ import Grid from 'tui-grid';
 export default class GridUtils {
 
     /**
+     * 그리드를 생성한다.
      * @param {import('tui-grid/types/options').OptGrid} option
      * @returns {Promise<Grid>}
      */
@@ -68,8 +69,9 @@ export default class GridUtils {
     }
 
     /**
-     * @param {Grid} grid 
-     * @param {import('tui-grid/types/options').OptColumn[]} columns 
+     * 그리드에 컬럼을 추가해준다.
+     * @param {Grid} grid - 그리드인스턴스
+     * @param {import('tui-grid/types/options').OptColumn[]} columns - 컬럼정보
      */
     static appendColumns = (grid, columns) => {
         if(!(grid instanceof Grid)) {
@@ -118,9 +120,11 @@ export default class GridUtils {
     }
 
     /**
-     *  @param {Grid} grid
-     *  @param {String} name
-     *  @param {Object[]} listItems
+     *  그리드의 에디터에 콤보박스 목록을 추가해준다.
+     * 
+     *  @param {Grid} grid -그리드인스턴스
+     *  @param {String} name -컬럼명
+     *  @param {Object[]} listItems -추가할 콤보박스 목록
      */
     static setListItems = (grid, name, listItems) => {
         if(!((grid instanceof Grid) && (['string'].includes(typeof name)) && (listItems instanceof Array))) {
