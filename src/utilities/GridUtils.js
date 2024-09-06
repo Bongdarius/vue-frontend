@@ -122,7 +122,7 @@ export default class GridUtils {
      *  @param {String} name
      *  @param {Object[]} listItems
      */
-    static addListItems = (grid, name, listItems) => {
+    static setListItems = (grid, name, listItems) => {
         if(!((grid instanceof Grid) && (['string'].includes(typeof name)) && (listItems instanceof Array))) {
             alert("[콤보박스] 인자를 다시 확인해주세요.");
             return;

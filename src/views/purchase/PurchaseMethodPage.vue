@@ -19,7 +19,7 @@ import GridUtils from '@/utilities/GridUtils';
 export default {
   setup() {
     onMounted(async () => {
-      grid = GridUtils.createGrid({
+      grid = await GridUtils.createGrid({
         el: document.getElementById("grid"),
         columns: [
           {

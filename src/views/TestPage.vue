@@ -13,9 +13,8 @@ import Grid from 'tui-grid'
 import GridUtils from '@/utilities/GridUtils'
 export default {
   setup() {
-    onMounted(() => {
-      grid = GridUtils.createGrid({
-        el: document.getElementById("grid"),
+    onMounted(async () => {
+      grid = await GridUtils.createGrid({
         columns: [
           {
             header: 'ID',
@@ -44,6 +43,8 @@ export default {
         dataList.push({id: i, name: 'name' + i, sex: 'male'});
       }
       grid.resetData(dataList);
+
+      console.log(grid);
     }
 
     const appendColumns = () => {
@@ -54,6 +55,8 @@ export default {
       }];
 
       GridUtils.appendColumns(grid, a);
+
+      console.log(grid.getColumns());
     }
 
     return {
