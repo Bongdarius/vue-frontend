@@ -16,8 +16,7 @@
       <!-- 사용자 기능 -->
       <div>
         <router-link to="/member/card">카드 등록</router-link> |
-        <router-link to="/purchase">결제 내역</router-link> |
-        <router-link to="/purchase/card">카드 결제 내역</router-link>
+        <router-link to="/purchase">결제 내역</router-link>
       </div>
     </div>
   </header>

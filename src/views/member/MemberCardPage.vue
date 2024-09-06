@@ -66,11 +66,7 @@ export default {
     const search = () => {
       memberCardService.selectList()
         .then(data => {
-          try {
-            grid.resetData(data);
-          } catch(e) {
-            console.log(e.message);
-          }
+          grid.resetData(data);
         });
     }
 

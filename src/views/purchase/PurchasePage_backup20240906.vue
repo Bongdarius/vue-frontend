@@ -7,7 +7,21 @@
       <Button label="삭제" @click="deleteRows" class="flex-grow" />
       <!-- <Button label="저장" @click="save" class="flex-grow" /> -->
     </div>
-    <div id="grid"></div>  
+    <grid
+      ref="gridRef"
+      :data="gridProps.data"
+      :columns="gridProps.columns"
+      :options="gridProps.options"
+      :theme="gridProps.myTheme"
+      @check="onCheck"
+      @uncheck="onUnCheck"
+      @dblclick="onDbClick"
+      :rowHeaders="gridProps.rowHeaders"
+      :columnOptions="gridProps.columnOptions"
+      :scrollX="true"
+      :scrollY="true"
+      :summary="gridProps.summary"
+    ></grid>
   </div>
   <Dialog v-model:visible="visible" modal header="결제 내역 저장" :style="{ width: '20rem' }">
         <span class="text-surface-500 dark:text-surface-400 block mb-4">결제 정보를 입력하세요.</span>
@@ -33,80 +47,31 @@
 </template>
 <script>
 import 'tui-grid/dist/tui-grid.css';
-// eslint-disable-next-line no-unused-vars
-import Grid from 'tui-grid';
-import { computed, onMounted, ref } from 'vue';
+import Grid from '@/Grid.vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import PurchaseService from '@/service/PurchaseService';
 import MemberCardService from '@/service/MemberCardService';
 import PurchaseMethodService from '@/service/PurchaseMethodService';
 import store from '@/store/state';
-import GridUtils from '@/utilities/GridUtils';
 
 export default {
+  components: {
+    grid: Grid,
+  },
+  methods: {
+    onCheck(ev) {
+      console.log('check event: ', ev);
+    },
+    onUnCheck(ev) {
+      console.log('uncheck event: ', ev);
+    },
+    onDbClick(ev) { 
+      console.log('uncheck event: ', ev);
+      this.modifiyRow();
+    }
+  },
   setup() {
     onMounted(async () => {
-      grid = await GridUtils.createGrid({
-        columns: [
-          {
-            header: '일련번호',
-            name: 'pcSeq',
-            width: 60,
-          },                  
-          {
-            header: '결제 방법 일련번호',
-            name: 'pcmSeq',
-            hidden: true,
-          },                   
-          {
-            header: '결제 방법',
-            name: 'pcmNm',
-            width: 70,
-          },               
-          {
-            header: '회원 카드 일련번호',
-            name: 'mcSeq',
-            hidden: true,
-          },                    
-          {
-            header: '카드명',
-            name: 'mcNick',
-            width: 70,
-          },                 
-          {
-            header: '카드 결제 일련번호',
-            name: 'pccSeq',
-            hidden: true,
-          }, 
-          {
-            header: '결제 금액',
-            name: 'pcAmt',
-            width: 120,
-          },          
-          {
-            header: '결제일시',
-            name: 'pcDatetime',
-            width: 180,
-          },         
-          {
-            header: '비고',
-            name: 'pcRemark',
-            minWidth: 300,
-          },
-        ],
-        summary: {
-          height: 50,
-          position: 'bottom', // or 'top'
-          columnContent: {
-            pcAmt: {
-              template: function(valueMap) {
-                const valueMap_ = valueMap;
-                return `총 금액: ${valueMap_.sum}`;
-              }
-            },
-          }
-        },
-      });
-      
       await memberCardService.selectListByItems()
         .then(data => {
           memberCardDatas.value = data;
@@ -115,32 +80,27 @@ export default {
         .then(data => {
           purchaseMethodDatas.value = data;
         })
-
       search();
     });
-
-    /**
-     * @type {Grid}
-     */
-    let grid = null;
-
     const userSeq = computed(() => store.state.module.userSeq);
     const search = () => {
       purchaseService.selectList()
         .then((data) => {
-          grid.resetData(data);
+          const grid = gridRef?.value?.gridInstance();
+
+          grid?.resetData(data);
         })
     }
     const appendRow = () => {
-      grid.appendRows([{}]);
+      gridRef.value.invoke("appendRows", [{}]);
     }
     const deleteRows = () => {
-      const checkedList = grid.getCheckedRowKeys();
+      const checkedIdxList = gridRef.value.invoke("getCheckedRowKeys");
       //행을 화면상에서 삭제 후 삭제 상태로 만듦
-      grid.removeRows(checkedList);
+      gridRef.value.invoke("removeRows", checkedIdxList);
 
       //삭제상태인 행을 삭제
-      const modifiedRows = grid.getModifiedRows();
+      const modifiedRows = gridRef.value.invoke("getModifiedRows");
       const deletedRows = modifiedRows.deletedRows;
       if(deletedRows.length > 0) {
         purchaseService.deleteList(deletedRows)
@@ -160,6 +120,7 @@ export default {
     }
 
     const modifiyRow = () => {
+      const grid = gridRef.value.gridInstance();
       /**
        * @type {Number}
        */
@@ -201,6 +162,7 @@ export default {
         const hours = String(pcTime.getHours()).padStart(2, '0');
         const minutes = String(pcTime.getMinutes()).padStart(2, '0');
         const seconds = String(pcTime.getSeconds()).padStart(2, '0');
+        // const milliseconds = String(pcTime.getMilliseconds()).padStart(3, '0');
 
         appendRowData.value.pcDatetime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
       }
@@ -234,10 +196,82 @@ export default {
     const purchaseMethodService = new PurchaseMethodService();
     const memberCardDatas = ref([]);
     const purchaseMethodDatas = ref([]);
+    const gridRef = ref(null);
+    const listItems = ref([]);
 
+    const gridProps = reactive({
+      rowHeaders: ['rowNum', 'checkbox'],
+      columnOptions: {
+        resizable: true,
+        frozenCount: 1,
+      },
+      columns: [
+        {
+          header: '일련번호',
+          name: 'pcSeq',
+          width: 60,
+        },                  
+        {
+          header: '결제 방법 일련번호',
+          name: 'pcmSeq',
+          hidden: true,
+        },                   
+        {
+          header: '결제 방법',
+          name: 'pcmNm',
+          width: 70,
+        },               
+        {
+          header: '회원 카드 일련번호',
+          name: 'mcSeq',
+          hidden: true,
+        },                    
+        {
+          header: '카드명',
+          name: 'mcNick',
+          width: 70,
+        },                 
+        {
+          header: '카드 결제 일련번호',
+          name: 'pccSeq',
+          hidden: true,
+        }, 
+        {
+          header: '결제 금액',
+          name: 'pcAmt',
+          width: 120,
+        },          
+        {
+          header: '결제일시',
+          name: 'pcDatetime',
+          width: 180,
+        },         
+        {
+          header: '비고',
+          name: 'pcRemark',
+          minWidth: 300,
+        },
+      ],
+      summary: {
+        height: 50,
+        position: 'bottom', // or 'top'
+        columnContent: {
+          pcAmt: {
+            template: function(valueMap) {
+              const valueMap_ = valueMap;
+              return `총 금액: ${valueMap_.sum}`;
+            }
+          },
+        }
+      },
+      data: [],
+      myTheme: "default",
+      options: {
+        rowHeaders: ['rowNum', 'checkbox'],
+      },
+    });
     return {
-      grid,
-      appendRow, save, search, deleteRows, 
+      gridProps, gridRef, appendRow, save, search, deleteRows, listItems,
       visible,
       appendRowData,
       memberCardDatas,
@@ -245,7 +279,11 @@ export default {
       userSeq,
       modifiyRow,
       newRow,
+      // onCheck,
     }
   },
 };
 </script>
+<style>
+@import 'https://uicdn.toast.com/tui-grid/latest/tui-grid.css';
+</style>
