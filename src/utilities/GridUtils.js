@@ -8,6 +8,7 @@ export default class GridUtils {
      * @returns {Promise<Grid>}
      */
     static createGrid = (option) => {
+        //el 속성 검증
         if(!(option.el instanceof HTMLElement)) {
             const gridEl = document.getElementById('grid');
             if(!gridEl) {
@@ -22,10 +23,12 @@ export default class GridUtils {
             option.el.style.border = option.el.style.border || '1px solid gray';
         }
 
+        //data 속성 검증
         if(!(option.data instanceof Array)) {
             option.data = [];
         }
 
+        //columns 속성 검증
         if((option.columns instanceof Array)) {
             if(option.columns.length < 1) {
                 alert("[컬럼] 배열의 크기가 1 미만");
@@ -48,6 +51,7 @@ export default class GridUtils {
             return;
         }
         
+        //columnOptions 속성 검증
         if(!(option.columnOptions instanceof Object)) {
             option.columnOptions = {
                 frozenCount: 1,
@@ -55,14 +59,18 @@ export default class GridUtils {
             }
         }
 
+        //bodyHeight 속성 검증
         if(!(option.bodyHeight instanceof String || option.bodyHeight instanceof Number)) option.bodyHeight = 400;
 
+        //rowHeaders 속성 검증
         if(!(option.rowHeaders instanceof Array)) {
             option.rowHeaders = ['rowNum', 'checkbox'];
         }
 
+        //Grid 객체 생성
         const grid = new Grid(option);
 
+        //Grid 객체 반환
         return new Promise(resolve => {
             resolve(grid);
         })
@@ -74,6 +82,7 @@ export default class GridUtils {
      * @param {import('tui-grid/types/options').OptColumn[]} columns - 컬럼정보
      */
     static appendColumns = (grid, columns) => {
+
         if(!(grid instanceof Grid)) {
             alert("[그리드] 그리드 인스턴스가 없습니다.");
             return;
@@ -91,6 +100,10 @@ export default class GridUtils {
                     if(!(each instanceof Object)) {
                         alert("[컬럼] 객체가 아닙니다.");
                         return;
+                    }
+
+                    if(!(['string'].includes(typeof each.align))) {
+                        each.align = 'center';
                     }
                 })
             }
