@@ -30,7 +30,17 @@ export default {
             header: '결제수단',
             name: 'pcmNm',
             editor: 'text',
-          },       
+          },  
+          {
+            header: '정렬순서',
+            name: 'pcmSortNo',
+            editor: 'text',
+            validation: {
+              required: true,
+              unique: true,
+              dataType: 'number',
+            }
+          },     
         ],
       });
 
@@ -59,6 +69,14 @@ export default {
       grid.removeRows(checkedList);
     }
     const save = () => {
+      const invalidRows = grid.validate();
+      console.log(invalidRows);
+
+      if(invalidRows.length > 0) {
+        alert("데이터 검증 실패");
+        return;
+      }
+
       const modifiedRows = grid.getModifiedRows();
       const createdRows = modifiedRows.createdRows;
       const updatedRows = modifiedRows.updatedRows;
