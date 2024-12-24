@@ -1,8 +1,17 @@
 import axios from "axios";
 
 export default class PurchaseService {
-	selectList() {
-		return axios.get("/purchase")
+	debugger;
+	selectList(month) {
+		return axios.get("/purchase", {params: {
+			month: month
+		}})
+			.then(res => res.data)
+	}
+	selectMonthList(mbSeq) {
+		return axios.get("/purchase/month", {params: {
+			mbSeq: mbSeq
+			}})
 			.then(res => res.data)
 	}
 	saveList(purchase) {

@@ -1,6 +1,12 @@
 <template>
   <div class="container">
-    <h1 @click="search">결제 내역 관리</h1>
+    <h1 @click="search()">결제 내역 관리</h1>
+    <div class="flex gap-2 mb-2">
+      <button :style="{width: '60px'}" @click="search()">전체</button>
+      <button :style="{width: '60px'}" v-for="month in monthList" :key="month.value" @click="search(month.value)">
+        {{month.text}}
+      </button>
+    </div>  
     <div class="flex justify-end gap-2 mb-2 w-full">
       <Button label="내역 추가" @click="newRow" class="flex-grow" />
       <Button label="내역 수정" @click="modifiyRow" class="flex-grow" />
@@ -109,6 +115,16 @@ export default {
         },
       });
       
+      await purchaseService.selectMonthList(userSeq.value)
+        .then(data => {
+          data.forEach(each => {
+            monthList.value.push({
+              text: each.pcMonth + "월",
+              value: each.pcMonth,
+            })
+          })
+        });
+
       await memberCardService.selectListByItems()
         .then(data => {
           memberCardDatas.value = data;
@@ -141,10 +157,14 @@ export default {
       }
       return minutes;
     }
-
+    
+    const monthList = ref([]);
     const userSeq = computed(() => store.state.module.userSeq);
-    const search = () => {
-      purchaseService.selectList()
+    /**
+     * @type {Number}
+     */
+    const search = (month) => {
+      purchaseService.selectList(month)
         .then((data) => {
           grid.resetData(data);
         })
@@ -283,6 +303,7 @@ export default {
       newRow,
       hours,
       minutes,
+      monthList,
     }
   },
 };

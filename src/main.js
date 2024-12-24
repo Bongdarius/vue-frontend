@@ -28,6 +28,7 @@ import "tui-date-picker/dist/tui-date-picker.css"; // use datepicker
 import 'tui-grid/dist/tui-grid.css';
 import TuiGrid from 'vue3-tui-grid';
 import DatePicker from 'primevue/datepicker';
+import i18n from './i18n'; // 위에서 생성한 i18n 설정 가져오기
 
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;  //전역변수로 설정 컴포넌트에서 this.$axios 호출할 수 있음
@@ -88,6 +89,7 @@ app.use(PrimeVue, {
 });
 app.use(router);
 app.use(TuiGrid);
+app.use(i18n);
 
 app.component('DataTable', DataTable);
 app.component('Column', Column);
